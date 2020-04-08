@@ -7,7 +7,7 @@
         <div style="margin-left: 5%;">
             <h3>Identificação:</h3>
             <input type="text" name="nome" id="nome" style="width: 30%;" placeholder="Nome ou vínculo com o estudante"><br>
-            <input type="text" name="dn" id="dn" style="width: 30%;" placeholder="Data de nascimento: DD/MM/AAAA"><br>
+            <input type="text" name="dn" id="dn" style="width: 30%;" maxlength="10" placeholder="Data de nascimento: DD/MM/AAAA" onkeyup=dt_mask()><br>
             <h3>Situação de renda:</h3>
             <input type="checkbox" class="renda" name="tipo_vinculo" id="tipo_vinculo_00">Trabalho formal, servidor público efetivo<br>
             <input type="checkbox" class="renda" name="tipo_vinculo" id="tipo_vinculo_01">Aposentadoria<br>

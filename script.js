@@ -197,3 +197,14 @@ function make_score(family_members) {
 
     return Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 };
+
+function dt_mask() {
+    if ( document.getElementById("dn").value.length == 2 ) {
+        document.getElementById("dn").value += "/";
+    } else if ( document.getElementById("dn").value.length == 5 ) {
+        document.getElementById("dn").value += "/";
+    } else {
+        document.getElementById("dn").value = document.getElementById("dn").value.replace(/[a-z]/i, "");
+        document.getElementById("dn").value = document.getElementById("dn").value.replace(/\/\//i, "/");
+    }
+};
