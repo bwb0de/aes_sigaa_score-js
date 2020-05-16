@@ -26,8 +26,8 @@ translator_tipo_renda = {
 translator_saude = {
     saude_00: [15, "Sem agravo"],
     saude_01: [7, "Doença crônica"],
-    saude_02: [1, "Doença grave"],
-    saude_03: [1, "Deficiência"]
+    saude_02: [0, "Doença grave"],
+    saude_03: [0, "Deficiência"]
 }
 
 
@@ -68,7 +68,7 @@ function load_family_members() {
         output += `<tr style='padding: 10px;'><td>${p.nome}</td><td>${p.dn}</td><td>${p.idade}</td><td>${p.renda}</td><td>${p.saude}</td></tr>`
     };
     output += "</table><br>";
-    output += "<b>Score (natureza vínculo empregatício + saúde): " + make_score(family_members).toString() + "</b>";
+    output += make_score(family_members).toString();
     return output
 };
 
@@ -187,16 +187,39 @@ function make_score(family_members) {
         if ( p.saude_score == 7 ){
             peso_agravos_saude.push(parseFloat(1.0));
         
-        } else if ( p.saude_score == 1 ) {
+        } else if ( p.saude_score == 0 ) {
             peso_agravos_saude.push(parseFloat(1.5));
-        };
+
+        } else if ( p.saude_score == 15 ) {
+            peso_agravos_saude.push(parseFloat(0.0));
+        }
+
+        
+        ;
     };
 
-    resultado_score_familiar_renda = media(score_renda_familia) / (1.0 + somar(dependentes))
-    resultado_score_familiar_saude = media(score_saude_cuidadores) / (1.0 + somar(peso_agravos_saude))
+    media_ponderada_natureza_renda = media(score_renda_familia)
+    resultado_score_familiar_renda = media_ponderada_natureza_renda / (1.0 + somar(dependentes))
+    
+    media_ponderada_score_saude = media(score_saude_cuidadores)
+    resultado_score_familiar_saude = media_ponderada_score_saude / (1.0 + somar(peso_agravos_saude))
+    
+    score_total = Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 
-    return Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
+    output = ""
+    output += "Media ponderada da natureza de renda: " + media_ponderada_natureza_renda.toString() +"<br>"
+    output += "Score relativo à natureza de renda: " + resultado_score_familiar_renda.toString() +"<br><br>"
+
+    output += "Media ponderada da situação de saúde e cuidados: " + media_ponderada_score_saude.toString() +"<br>"
+    output += "Score relativo à situação de saúde: " + resultado_score_familiar_saude.toString() +"<br><br>"
+
+    output += "Score total: " + score_total.toString() +"<br>"
+
+    return output
 };
+
+
+
 
 function dt_mask() {
     if ( document.getElementById("dn").value.length == 2 ) {
