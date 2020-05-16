@@ -31,28 +31,103 @@ translator_saude = {
 }
 
 
-function push_family_member() {
-    nome = document.getElementById('nome').value;
-    dn = document.getElementById('dn').value;
-    renda = get_selected_op('renda', translator_tipo_renda);
-    renda_score = get_selected_op('renda', translator_tipo_renda, output_score=true);
-    saude = get_selected_op('saude', translator_saude);
-    saude_score = get_selected_op('saude', translator_saude, output_score=true);
+function check_form() {
+    //Verifica se todas questões foram preechidas
+    if ( document.getElementById("dn").value == "" ) {
+        return 0;
+    
+    } else if ( document.getElementById("nome").value == "" ) {
+        return 0;
+    } 
+    
+    if ( check_if_checked("renda") == 0 ) {
+        return 0;
+    }
+    
+    if ( check_if_checked("saude") == 0 ) {
+        return 0;
+    }
+    
+    return 1
+}
 
-    new_info = {
-        nome: nome,
-        dn: dn,
-        idade: calculate_age(dn),
-        renda: renda,
-        renda_score: renda_score,
-        saude: saude,
-        saude_score: saude_score
+
+
+function push_family_member() {
+
+    if ( check_form() ) {
+        nome = document.getElementById('nome').value;
+        dn = document.getElementById('dn').value;
+        idade = calculate_age(dn);
+        renda = get_selected_op('renda', translator_tipo_renda);
+        renda_score = get_selected_op('renda', translator_tipo_renda, output_score=true);
+        renda_idade_peso = get_idade_peso(idade);
+        saude = get_selected_op('saude', translator_saude);
+        saude_score = get_selected_op('saude', translator_saude, output_score=true);
+        saude_peso = get_saude_peso(saude_score);
+
+        new_info = {
+            nome: nome,
+            dn: dn,
+            idade: calculate_age(dn),
+            renda: renda,
+            renda_score: renda_score,
+            renda_idade_peso: renda_idade_peso,
+            saude: saude,
+            saude_score: saude_score,
+            saude_peso: saude_peso
+        }
+
+        family_members.push(new_info);
+        print_info();
+        clear_fields();
+    } else {
+        alert("É necessário preencher todos os campos do formuláio")
+    }
+};
+
+
+function get_idade_peso(idade) {
+    renda_idade_peso = 0
+
+    if ( idade < 5 ) {
+        renda_idade_peso = 2.0
+
+    } else if ( idade >= 5 && idade < 12 ) {
+        renda_idade_peso = 1.5
+
+    } else if ( idade >= 12 && idade < 18 ) {
+        renda_idade_peso = 1.0
+
+    } else if ( idade >= 18 && renda_score == 0 ) {
+        renda_idade_peso = 0.3
+    
+    } else {
+        renda_idade_peso = 0.0
+    };
+
+    return renda_idade_peso
+
+};
+
+
+function get_saude_peso(saude_score) {
+    saude_peso = 0
+
+    if ( saude_score == 15 ){
+        saude_peso = 0.0
+    
+    } else if ( saude_score == 7 ) {
+        saude_peso = 1.0
+
+    } else if ( saude_score == 0 ) {
+        saude_peso = 1.5
     }
 
-    family_members.push(new_info);
-    print_info();
-    clear_fields();
+    return saude_peso
 };
+
+
 
 function load_family_members() {
     output = "<h3>Grupo familiar</h3>";
@@ -93,6 +168,19 @@ function clear_radio_selection(class_name) {
         grupo_ops[index].checked = false;
     };
 };
+
+
+function check_if_checked(class_name) {
+    grupo_ops = document.getElementsByClassName(class_name);
+    for ( index in grupo_ops ) {
+        if ( grupo_ops[index].checked == true ) {
+            return 1;
+        }
+    };
+    return 0;
+};
+
+
 
 
 
@@ -157,63 +245,51 @@ function somar(arr) {
 
 function make_score(family_members) {
 
-    score_renda_familia = []
-    dependentes = []
-    score_saude_cuidadores = []
-    peso_agravos_saude = []
+    pontuacao_conforme_natureza_da_renda = []
+    peso_conforme_a_idade_do_dependente = []
+    pontuacao_conforme_a_situacao_de_saude = []
+    peso_conforme_a_condicao_de_saude_dos_cuidadores = []
+
 
     for ( index in family_members ) {
-        p = family_members[index]
+        pessoa = family_members[index]
 
-        score_renda_familia.push(parseFloat(p.renda_score));
+        pontuacao_conforme_natureza_da_renda.push(parseFloat(pessoa.renda_score));
+        pontuacao_conforme_a_situacao_de_saude.push(parseFloat(pessoa.saude_score));
+        
+        
+        //Inclusão seletiva dos pesos conforme a situação de dependência
+        if ( pessoa.idade < 18 ) {
+            peso_conforme_a_idade_do_dependente.push(parseFloat(pessoa.renda_idade_peso));
 
-        if ( p.idade < 5 ) {
-            dependentes.push(2.0)
+        } else if ( pessoa.renda_score == 0 ) {
+            peso_conforme_a_idade_do_dependente.push(parseFloat(pessoa.renda_idade_peso));
 
-        } else if ( p.idade >= 5 && p.idade < 12 ) {
-            dependentes.push(1.5)
-
-        } else if ( p.idade >= 12 && p.idade < 18 ) {
-            dependentes.push(1.0)
-
-        } else if ( p.idade >= 18 && p.renda_score == 0 ) {
-            dependentes.push(0.3)
         };
 
-        if ( p.idade > 16 ) {
-            score_saude_cuidadores.push(parseFloat(p.saude_score))
+        
+        //Inclusão seletiva dos pesos de cuidadores conforme o critério de idade
+        if ( pessoa.idade > 16 ) {
+            peso_conforme_a_condicao_de_saude_dos_cuidadores.push(parseFloat(pessoa.saude_peso))
         };
-
-        if ( p.saude_score == 7 ){
-            peso_agravos_saude.push(parseFloat(1.0));
-        
-        } else if ( p.saude_score == 0 ) {
-            peso_agravos_saude.push(parseFloat(1.5));
-
-        } else if ( p.saude_score == 15 ) {
-            peso_agravos_saude.push(parseFloat(0.0));
-        }
-
-        
-        ;
     };
 
-    media_ponderada_natureza_renda = media(score_renda_familia)
-    resultado_score_familiar_renda = media_ponderada_natureza_renda / (1.0 + somar(dependentes))
+    media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
+    resultado_score_familiar_renda = media_ponderada_natureza_renda / (1.0 + somar(peso_conforme_a_idade_do_dependente))
     
-    media_ponderada_score_saude = media(score_saude_cuidadores)
-    resultado_score_familiar_saude = media_ponderada_score_saude / (1.0 + somar(peso_agravos_saude))
+    media_ponderada_score_saude = media(pontuacao_conforme_a_situacao_de_saude)
+    resultado_score_familiar_saude = media_ponderada_score_saude / (1.0 + somar(peso_conforme_a_condicao_de_saude_dos_cuidadores))
     
     score_total = Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 
-    output = ""
-    output += "Media ponderada da natureza de renda: " + media_ponderada_natureza_renda.toString() +"<br>"
-    output += "Score relativo à natureza de renda: " + resultado_score_familiar_renda.toString() +"<br><br>"
+    output = "<h3>Detalhamento da pontuação</h3>"
+    output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
+    output += "<b style='color: blue'>Score relativo à natureza de renda: </b>" + resultado_score_familiar_renda.toString() +"<br><br>"
 
-    output += "Media ponderada da situação de saúde e cuidados: " + media_ponderada_score_saude.toString() +"<br>"
-    output += "Score relativo à situação de saúde: " + resultado_score_familiar_saude.toString() +"<br><br>"
+    output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
+    output += "<b style='color: red'>Score relativo à situação de saúde: </b>" + resultado_score_familiar_saude.toString() +"<br><br>"
 
-    output += "Score total: " + score_total.toString() +"<br>"
+    output += "<h3>Score total: " + score_total.toString() +"</h3>"
 
     return output
 };
