@@ -25,9 +25,9 @@ translator_tipo_renda = {
 
 translator_saude = {
     saude_00: [15, "Sem agravo"],
-    saude_01: [7, "Doença crônica"],
-    saude_02: [0, "Doença grave"],
-    saude_03: [0, "Deficiência"]
+    saude_01: [9, "Doença crônica"],
+    saude_02: [2, "Doença grave"],
+    saude_03: [2, "Deficiência"]
 }
 
 
@@ -120,7 +120,7 @@ function get_saude_peso(saude_score) {
     } else if ( saude_score == 7 ) {
         saude_peso = 1.0
 
-    } else if ( saude_score == 0 ) {
+    } else if ( saude_score == 2 ) { //reverter
         saude_peso = 1.5
     }
 
@@ -250,13 +250,24 @@ function make_score(family_members) {
     pontuacao_conforme_a_situacao_de_saude = []
     peso_conforme_a_condicao_de_saude_dos_cuidadores = []
 
+    output = "";
+
+    scores_saude = "";
+    scores_renda = "";
+    pesos_renda = "";
+    pesos_cuidadores = "";
+
 
     for ( index in family_members ) {
         pessoa = family_members[index]
 
         pontuacao_conforme_natureza_da_renda.push(parseFloat(pessoa.renda_score));
+        scores_renda += pessoa.renda_score.toString() + " ";
+        pesos_renda += pessoa.renda_idade_peso.toString() + " ";
         pontuacao_conforme_a_situacao_de_saude.push(parseFloat(pessoa.saude_score));
-        
+        scores_saude += pessoa.saude_score.toString() + " ";
+        pesos_cuidadores += pessoa.saude_peso.toString()+ " ";
+
         
         //Inclusão seletiva dos pesos conforme a situação de dependência
         if ( pessoa.idade < 18 ) {
@@ -275,21 +286,30 @@ function make_score(family_members) {
     };
 
     media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
-    resultado_score_familiar_renda = media_ponderada_natureza_renda / (1.0 + somar(peso_conforme_a_idade_do_dependente))
+    sigma_peso_dependentes = 1.0 + somar(peso_conforme_a_idade_do_dependente)
+    resultado_score_familiar_renda = media_ponderada_natureza_renda / (sigma_peso_dependentes)
     
     media_ponderada_score_saude = media(pontuacao_conforme_a_situacao_de_saude)
-    resultado_score_familiar_saude = media_ponderada_score_saude / (1.0 + somar(peso_conforme_a_condicao_de_saude_dos_cuidadores))
+    sigma_peso_cuidadores = 1.0 + somar(peso_conforme_a_condicao_de_saude_dos_cuidadores)
+    resultado_score_familiar_saude = media_ponderada_score_saude / (sigma_peso_cuidadores)
     
     score_total = Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 
-    output = "<h3>Detalhamento da pontuação</h3>"
+    output += "<h3>Detalhamento da pontuação</h3>"
+
+    output += "<b style='color: blue'>Pontuação por integrante familiar conforme natureza renda: </b>" + scores_renda.toString() +"<br>"
     output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
+    output += "<b style='color: blue'>Pesos por integrante familiar conforme tipo de dependente: </b>" + pesos_renda.toString() +"<br>"
+    output += "<b style='color: blue'>Soma peso dos dependentes: </b>" + sigma_peso_dependentes.toString() +"<br>"
     output += "<b style='color: blue'>Score relativo à natureza de renda: </b>" + resultado_score_familiar_renda.toString() +"<br><br>"
 
+    output += "<b style='color: red'>Pontuação por integrante familiar conforme situação de saúde: </b>" + scores_saude.toString() +"<br>"
     output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
+    output += "<b style='color: red'>Pesos por integrante familiar conforme a saúde dos cuidadores: </b>" + pesos_cuidadores.toString() +"<br>"
+    output += "<b style='color: red'>Soma do peso relativo à saúde dos cuidadores: </b>" + sigma_peso_cuidadores.toString() +"<br>"
     output += "<b style='color: red'>Score relativo à situação de saúde: </b>" + resultado_score_familiar_saude.toString() +"<br><br>"
 
-    output += "<h3>Score total: " + score_total.toString() +"</h3>"
+    output += "<h3>Pontuação total: " + score_total.toString() +"</h3>"
 
     return output
 };
