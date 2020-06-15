@@ -25,9 +25,9 @@ translator_tipo_renda = {
 
 translator_saude = {
     saude_00: [15, "Sem agravo"],
-    saude_01: [9, "Doença crônica"],
-    saude_02: [2, "Doença grave"],
-    saude_03: [2, "Deficiência"]
+    saude_01: [7, "Doença crônica"],
+    saude_02: [3, "Doença grave"],
+    saude_03: [3, "Deficiência"]
 }
 
 
@@ -99,8 +99,11 @@ function get_idade_peso(idade) {
     } else if ( idade >= 12 && idade < 18 ) {
         renda_idade_peso = 1.0
 
-    } else if ( idade >= 18 && renda_score == 0 ) {
+    } else if ( idade >= 18 && idade < 60 && renda_score == 0 ) {
         renda_idade_peso = 0.3
+    
+    } else if ( idade >= 60 && renda_score == 0 ) {
+        renda_idade_peso = 0.7
     
     } else {
         renda_idade_peso = 0.0
@@ -118,9 +121,9 @@ function get_saude_peso(saude_score) {
         saude_peso = 0.0
     
     } else if ( saude_score == 7 ) {
-        saude_peso = 1.0
+        saude_peso = 1.2
 
-    } else if ( saude_score == 2 ) { //reverter
+    } else if ( saude_score == 3 ) { //reverter
         saude_peso = 1.5
     }
 
@@ -232,6 +235,14 @@ function media(arr) {
     return soma / denominador
 
 }
+
+
+function saude_denominator(arr) {
+    output = 0;
+    cronic_term = 0;
+    grave_term = 0;
+}
+
 
 function somar(arr) {
     output = 0
