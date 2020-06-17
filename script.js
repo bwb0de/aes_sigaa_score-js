@@ -64,7 +64,7 @@ function push_family_member() {
         renda_idade_peso = get_idade_peso(idade);
         saude = get_selected_op('saude', translator_saude);
         saude_score = get_selected_op('saude', translator_saude, output_score=true);
-        saude_peso = get_saude_peso(saude_score);
+        saude_peso = get_saude_peso(saude_score, idade);
 
         new_info = {
             nome: nome,
@@ -114,10 +114,13 @@ function get_idade_peso(idade) {
 };
 
 
-function get_saude_peso(saude_score) {
+function get_saude_peso(saude_score, idade) {
     saude_peso = 0
 
-    if ( saude_score == 15 ){
+    if ( idade < 16 ) {
+        saude_peso = 0.2
+
+    } else if ( saude_score == 15 ){
         saude_peso = 0.0
     
     } else if ( saude_score == 7 ) {
@@ -291,9 +294,8 @@ function make_score(family_members) {
 
         
         //Inclusão seletiva dos pesos de cuidadores conforme o critério de idade
-        if ( pessoa.idade > 16 ) {
-            peso_conforme_a_condicao_de_saude_dos_cuidadores.push(parseFloat(pessoa.saude_peso))
-        };
+        peso_conforme_a_condicao_de_saude_dos_cuidadores.push(parseFloat(pessoa.saude_peso))
+
     };
 
     media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
@@ -311,13 +313,13 @@ function make_score(family_members) {
     output += "<b style='color: blue'>Pontuação por integrante familiar conforme natureza renda: </b>" + scores_renda.toString() +"<br>"
     output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
     output += "<b style='color: blue'>Pesos por integrante familiar conforme tipo de dependente: </b>" + pesos_renda.toString() +"<br>"
-    output += "<b style='color: blue'>Soma peso dos dependentes: </b>" + sigma_peso_dependentes.toString() +"<br>"
+    output += "<b style='color: blue'>Soma peso dos dependentes + 1: </b>" + sigma_peso_dependentes.toString() +"<br>"
     output += "<b style='color: blue'>Score relativo à natureza de renda: </b>" + resultado_score_familiar_renda.toString() +"<br><br>"
 
     output += "<b style='color: red'>Pontuação por integrante familiar conforme situação de saúde: </b>" + scores_saude.toString() +"<br>"
     output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
     output += "<b style='color: red'>Pesos por integrante familiar conforme a saúde dos cuidadores: </b>" + pesos_cuidadores.toString() +"<br>"
-    output += "<b style='color: red'>Soma do peso relativo à saúde dos cuidadores: </b>" + sigma_peso_cuidadores.toString() +"<br>"
+    output += "<b style='color: red'>Soma do peso relativo à saúde dos cuidadores + 1: </b>" + sigma_peso_cuidadores.toString() +"<br>"
     output += "<b style='color: red'>Score relativo à situação de saúde: </b>" + resultado_score_familiar_saude.toString() +"<br><br>"
 
     output += "<h3>Pontuação total: " + score_total.toString() +"</h3>"
