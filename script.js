@@ -1,29 +1,31 @@
 family_members = [];
 
 MAX_SAUDE = 13
-MID_SAUDE = 7
+MID_SAUDE = 8
 MIN_SAUDE = 3
 
+MAX_RENDA = 22
+
 translator_tipo_renda = {
-    tipo_vinculo_00: [23, "Servidor efetivo"],
-    tipo_vinculo_01: [23, "Aposentado"],
-    tipo_vinculo_02: [23, "Rendimentos"],
-    tipo_vinculo_03: [14.72, "Servidor temporário/comissão"],
-    tipo_vinculo_04: [14.72, "Microempreendedor"],
-    tipo_vinculo_05: [14.72, "Trabalho formal"],
-    tipo_vinculo_06: [14.72, "PA formal"],
-    tipo_vinculo_07: [14.72, "Pensão por morte"],
-    tipo_vinculo_08: [14.72, "Pensão por morte"],
-    tipo_vinculo_09: [10.12, "INSS"],
-    tipo_vinculo_10: [10.12, "Estágio"],
-    tipo_vinculo_11: [10.12, "Bolsa Acadêmica"],
-    tipo_vinculo_12: [10.12, "Bolsa pós-graduação"],
-    tipo_vinculo_13: [10.12, "Bolsa PNAES"],
-    tipo_vinculo_14: [2.76, "PA informal"],
-    tipo_vinculo_15: [4.6, "Assistência Social"],
-    tipo_vinculo_16: [4.6, "Autônomo"],
-    tipo_vinculo_17: [2.76, "Poupança"],
-    tipo_vinculo_18: [2.76, "Seguro-desemprego"],
+    tipo_vinculo_00: [22, "Servidor efetivo"],
+    tipo_vinculo_01: [22, "Aposentado"],
+    tipo_vinculo_02: [22, "Rendimentos"],
+    tipo_vinculo_03: [14.08, "Servidor temporário/comissão"],
+    tipo_vinculo_04: [14.08, "Microempreendedor"],
+    tipo_vinculo_05: [14.08, "Trabalho formal"],
+    tipo_vinculo_06: [14.08, "PA formal"],
+    tipo_vinculo_07: [14.08, "Pensão por morte"],
+    tipo_vinculo_08: [14.08, "Pensão por morte"],
+    tipo_vinculo_09: [9.68, "INSS"],
+    tipo_vinculo_10: [9.68, "Estágio"],
+    tipo_vinculo_11: [9.68, "Bolsa Acadêmica"],
+    tipo_vinculo_12: [9.68, "Bolsa pós-graduação"],
+    tipo_vinculo_13: [9.68, "Bolsa PNAES"],
+    tipo_vinculo_14: [2.64, "PA informal"],
+    tipo_vinculo_15: [4.4, "Assistência Social"],
+    tipo_vinculo_16: [4.4, "Autônomo"],
+    tipo_vinculo_17: [2.64, "Poupança"],
+    tipo_vinculo_18: [2.64, "Seguro-desemprego"],
     tipo_vinculo_19: [0, "Sem renda"]
 }
 
@@ -171,15 +173,15 @@ function get_renda_vector(renda_score, idade, ) {
 
     x = dependencia_by_age_group(idade);
 
-    if ( renda_score == 23 ) {
+    if ( renda_score == 22 ) {
         y = 5
-    } else if ( renda_score == 14.72 ) {
+    } else if ( renda_score == 14.08 ) {
         y = 3.2
-    } else if ( renda_score == 10.12 ) {
+    } else if ( renda_score == 9.68 ) {
         y = 2.2
-    } else if ( renda_score == 4.6 ) {
+    } else if ( renda_score == 4.4 ) {
         y = 1
-    } else if ( renda_score == 2.76 ) {
+    } else if ( renda_score == 2.64 ) {
         y = 0.6
     } else if ( renda_score == 0 ) {
         y = 0
@@ -221,17 +223,17 @@ function coseno_vector(vector) {
 
 function autonomia_by_age_group(idade) {
     if ( idade < 3 ) {
-        return -1;
+        return 0//-1;
     } else if ( idade < 8 ) {
-        return -0.5;
+        return 0.5//-0.5;
     } else if ( idade < 12 ) {
-        return -0.3;
+        return 0.7//-0.3;
     } else if ( idade < 18 ) {
-        return 0;
+        return 1//0;
     } else if ( idade < 60 ) {
-        return 2;
+        return 3//2;
     } else {
-        return 1;
+        return 2//1;
     }
 };
 
@@ -383,12 +385,13 @@ function make_score(family_members) {
     saude_vectors = []
     renda_vectors = []
 
+    vetores_saude_view = "";
+    vetores_renda_view = "";
+
     output = "";
 
     scores_saude = "";
     scores_renda = "";
-    pesos_renda = "";
-    pesos_cuidadores = "";
 
 
     for ( index in family_members ) {
@@ -401,8 +404,10 @@ function make_score(family_members) {
         scores_saude += pessoa.saude_score.toString() + " ";
 
         saude_vectors.push(pessoa.saude_vector)
+        vetores_saude_view += "[" + pessoa.saude_vector + "] "
+        
         renda_vectors.push(pessoa.renda_vector)
-
+        vetores_renda_view += "[" + pessoa.renda_vector + "] "
     };
 
     
@@ -416,33 +421,34 @@ function make_score(family_members) {
     resultado_score_familiar_saude = media_ponderada_score_saude / coseno_do_vetor_resultante_saude_mais_um
     score_saude_view = Math.floor(resultado_score_familiar_saude * 100).toString()
 
-    global_renda_vector_x = calculate_tx_com_renda(family_members) * (-1)
-    global_renda_vector_y = 0.1;
+    global_renda_vector_x = 0;
+    global_renda_vector_y = calculate_tx_com_renda(family_members);
     global_renda_vector = [global_renda_vector_x, global_renda_vector_y]
     renda_vectors.push(global_renda_vector)
-    alert(renda_vectors)
     vetor_resultante_renda = resultant_vector(renda_vectors);
     coseno_do_vetor_resultante_renda_mais_um = 1.0 + coseno_vector(vetor_resultante_renda);
     media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
     resultado_score_familiar_renda = media_ponderada_natureza_renda / coseno_do_vetor_resultante_renda_mais_um
-    score_renda_view = Math.floor(resultado_score_familiar_saude * 100).toString()
+    score_renda_view = Math.floor(resultado_score_familiar_renda * 100).toString()
 
     score_total = Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 
     output += "<h3>Detalhamento da pontuação</h3>"
 
-    output += "<b style='color: blue'>Pontuação por integrante familiar conforme natureza renda: </b>" + scores_renda.toString() +"<br>"
-    output += "<b style='color: blue'>Vetores de renda: </b>" + renda_vectors.toString() + "br"
+    output += "<b style='color: blue'>Pontuação por integrante familiar conforme natureza renda: </b>" + scores_renda.toString() + "<br>"
+    output += "<b style='color: blue'>Vetores de renda: </b>" + vetores_renda_view.toString() + "<br>"
+    output += "<b style='color: blue'>Vetor global de renda: </b>[" + global_renda_vector.toString() + "]<br>"
     output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
     output += "<b style='color: blue'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_renda_mais_um.toString() +"<br>"
-    output += "<b style='color: blue'>Score relativo à natureza de renda: </b>" + score_renda_view +"<br><br>"
+    output += "<b>Score relativo à natureza de renda: " + score_renda_view +"</b><br><br>"
 
 
-    output += "<b style='color: red'>Pontuação por integrante familiar conforme situação de saúde: </b>" + scores_saude.toString() +"<br>"
-    output += "<b style='color: red'>Vetores de saúde: </b>" + saude_vectors.toString() +"<br>"
+    output += "<b style='color: red'>Pontuação por integrante familiar conforme situação de saúde: </b>" + scores_saude.toString() + "<br>"
+    output += "<b style='color: red'>Vetores de saúde: </b>" + vetores_saude_view.toString() +"<br>"
+    output += "<b style='color: red'>Vetor global de saúde: </b>[" + global_saude_vector.toString() +"]<br>"
     output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
     output += "<b style='color: red'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_saude_mais_um.toString() +"<br>"
-    output += "<b style='color: red'>Score relativo à situação de saúde: </b>" + score_saude_view +"<br><br>"
+    output += "<b>Score relativo à situação de saúde: " + score_saude_view +"</b><br><br>"
 
     output += "<h3>Pontuação total: " + score_total.toString() +"</h3>"
 
