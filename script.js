@@ -67,10 +67,8 @@ function push_family_member() {
         idade = calculate_age(dn);
         renda = get_selected_op('renda', translator_tipo_renda);
         renda_score = get_selected_op('renda', translator_tipo_renda, output_score=true);
-        //renda_idade_peso = get_idade_peso(idade);
         saude = get_selected_op('saude', translator_saude);
         saude_score = get_selected_op('saude', translator_saude, output_score=true);
-        //saude_peso = get_saude_peso(saude_score, idade);
         saude_vector = get_saude_vector(saude_score, idade);
         renda_vector = get_renda_vector(renda_score, idade);
 
@@ -80,10 +78,8 @@ function push_family_member() {
             idade: calculate_age(dn),
             renda: renda,
             renda_score: renda_score,
-            //renda_idade_peso: renda_idade_peso,
             saude: saude,
             saude_score: saude_score,
-            //saude_peso: saude_peso,
             saude_vector: saude_vector,
             renda_vector: renda_vector
         }
@@ -96,54 +92,6 @@ function push_family_member() {
     }
 };
 
-
-/*
-function get_idade_peso(idade) {
-    renda_idade_peso = 0
-
-    if ( idade < 5 ) {
-        renda_idade_peso = 2.0
-
-    } else if ( idade >= 5 && idade < 12 ) {
-        renda_idade_peso = 1.5
-
-    } else if ( idade >= 12 && idade < 18 ) {
-        renda_idade_peso = 1.0
-
-    } else if ( idade >= 18 && idade < 60 && renda_score == 0 ) {
-        renda_idade_peso = 0.3
-    
-    } else if ( idade >= 60 && renda_score == 0 ) {
-        renda_idade_peso = 0.7
-    
-    } else {
-        renda_idade_peso = 0.0
-    };
-
-    return renda_idade_peso
-
-};*/
-
-
-/*
-function get_saude_peso(saude_score, idade) {
-    saude_peso = 0
-
-    if ( idade < 16 ) {
-        saude_peso = 0.2
-
-    } else if ( saude_score == MAX_SAUDE ){
-        saude_peso = 0.0
-    
-    } else if ( saude_score == MID_SAUDE ) {
-        saude_peso = 1.2
-
-    } else if ( saude_score == MIN_SAUDE ) { 
-        saude_peso = 1.5
-    }
-
-    return saude_peso
-};*/
 
 
 function resultant_vector(arr) {
@@ -236,8 +184,6 @@ function get_renda_vector(renda_score, idade, ) {
     } else if ( renda_score == 0 ) {
         y = 0
     }
-    alert(x)
-    alert(y)
     return [x,y];
 };
 
@@ -432,9 +378,8 @@ function somar(arr) {
 function make_score(family_members) {
 
     pontuacao_conforme_natureza_da_renda = []
-    //peso_conforme_a_idade_do_dependente = []
     pontuacao_conforme_a_situacao_de_saude = []
-    //peso_conforme_a_condicao_de_saude_dos_cuidadores = []
+
     saude_vectors = []
     renda_vectors = []
 
@@ -451,28 +396,12 @@ function make_score(family_members) {
 
         pontuacao_conforme_natureza_da_renda.push(parseFloat(pessoa.renda_score));
         scores_renda += pessoa.renda_score.toString() + " ";
-        //pesos_renda += pessoa.renda_idade_peso.toString() + " ";
+
         pontuacao_conforme_a_situacao_de_saude.push(parseFloat(pessoa.saude_score));
         scores_saude += pessoa.saude_score.toString() + " ";
-        //pesos_cuidadores += pessoa.saude_peso.toString()+ " ";
 
         saude_vectors.push(pessoa.saude_vector)
         renda_vectors.push(pessoa.renda_vector)
-
-        
-        //Inclusão seletiva dos pesos conforme a situação de dependência
-        /*
-        if ( pessoa.idade < 18 ) {
-            peso_conforme_a_idade_do_dependente.push(parseFloat(pessoa.renda_idade_peso));
-
-        } else if ( pessoa.renda_score == 0 ) {
-            peso_conforme_a_idade_do_dependente.push(parseFloat(pessoa.renda_idade_peso));
-
-        };*/
-
-        
-        //Inclusão seletiva dos pesos de cuidadores conforme o critério de idade
-        //peso_conforme_a_condicao_de_saude_dos_cuidadores.push(parseFloat(pessoa.saude_peso))
 
     };
 
@@ -485,6 +414,7 @@ function make_score(family_members) {
     coseno_do_vetor_resultante_saude_mais_um = 1.0 + coseno_vector(vetor_resultante_saude);
     media_ponderada_score_saude = media(pontuacao_conforme_a_situacao_de_saude)
     resultado_score_familiar_saude = media_ponderada_score_saude / coseno_do_vetor_resultante_saude_mais_um
+    score_saude_view = Math.floor(resultado_score_familiar_saude * 100).toString()
 
     global_renda_vector_x = calculate_tx_com_renda(family_members) * (-1)
     global_renda_vector_y = 0.1;
@@ -495,44 +425,24 @@ function make_score(family_members) {
     coseno_do_vetor_resultante_renda_mais_um = 1.0 + coseno_vector(vetor_resultante_renda);
     media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
     resultado_score_familiar_renda = media_ponderada_natureza_renda / coseno_do_vetor_resultante_renda_mais_um
+    score_renda_view = Math.floor(resultado_score_familiar_saude * 100).toString()
 
-    //sigma_peso_dependentes = 1.0 + somar(peso_conforme_a_idade_do_dependente)
-    //media_ponderada_peso_dependentes = 1.0 + media(peso_conforme_a_idade_do_dependente)
-    //resultado_score_familiar_renda = media_ponderada_natureza_renda / (sigma_peso_dependentes / fator_de_correcao_denominador)
-    //resultado_score_familiar_renda2 = media_ponderada_natureza_renda / (media_ponderada_peso_dependentes / fator_de_correcao_denominador)
-    
-    //sigma_peso_cuidadores = 1.0 + somar(peso_conforme_a_condicao_de_saude_dos_cuidadores)
-    //media_ponderada_peso_cuidadores = 1.0 + media(peso_conforme_a_condicao_de_saude_dos_cuidadores)
-    //resultado_score_familiar_saude = media_ponderada_score_saude / ((sigma_peso_cuidadores) / fator_de_correcao_denominador)
-    //resultado_score_familiar_saude2 = media_ponderada_score_saude / ((media_ponderada_peso_cuidadores) / fator_de_correcao_denominador)
-    //resultado_score_familiar_saude3 = media_ponderada_score_saude / coseno_do_vetor_resultante_saude_mais_um
-    //resultado_score_familiar_saude4 = MAX_SAUDE * (1 - coseno_do_vetor_resultante_saude)
-    
     score_total = Math.floor((resultado_score_familiar_renda + resultado_score_familiar_saude) * 100)
 
     output += "<h3>Detalhamento da pontuação</h3>"
 
     output += "<b style='color: blue'>Pontuação por integrante familiar conforme natureza renda: </b>" + scores_renda.toString() +"<br>"
+    output += "<b style='color: blue'>Vetores de renda: </b>" + renda_vectors.toString() + "br"
     output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
-    //output += "<b style='color: blue'>Pesos por integrante familiar conforme tipo de dependente: </b>" + pesos_renda.toString() +"<br>"
-    //output += "<b style='color: blue'>Soma peso dos dependentes + 1: </b>" + sigma_peso_dependentes.toString() +"<br>"
-    //output += "<b style='color: blue'>Média ponderada do peso dos dependentes + 1: </b>" + media_ponderada_peso_dependentes.toString() +"<br>"
     output += "<b style='color: blue'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_renda_mais_um.toString() +"<br>"
-    output += "<b style='color: blue'>Score relativo à natureza de renda (MP1/Sigma+1): </b>" + resultado_score_familiar_renda.toString() +"<br><br>"
-    //output += "<b style='color: blue'>Score relativo à natureza de renda (MP1/MP2+1): </b>" + resultado_score_familiar_renda2.toString() +"<br><br>"
-
+    output += "<b style='color: blue'>Score relativo à natureza de renda: </b>" + score_renda_view +"<br><br>"
 
 
     output += "<b style='color: red'>Pontuação por integrante familiar conforme situação de saúde: </b>" + scores_saude.toString() +"<br>"
+    output += "<b style='color: red'>Vetores de saúde: </b>" + saude_vectors.toString() +"<br>"
     output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
-    //output += "<b style='color: red'>Pesos por integrante familiar conforme a saúde dos cuidadores: </b>" + pesos_cuidadores.toString() +"<br>"
-    //output += "<b style='color: red'>Soma do peso relativo à saúde dos cuidadores + 1: </b>" + sigma_peso_cuidadores.toString() +"<br>"
-    //output += "<b style='color: red'>Média ponderada do peso dos cuidadores + 1: </b>" + media_ponderada_peso_cuidadores.toString() +"<br>"
     output += "<b style='color: red'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_saude_mais_um.toString() +"<br>"
-    output += "<b style='color: red'>Score relativo à situação de saúde (MP1/Cos+1): </b>" + resultado_score_familiar_saude.toString() +"<br><br>"
-    //output += "<b style='color: red'>Score relativo à situação de saúde (MAX * Cos): </b>" + resultado_score_familiar_saude4.toString() +"<br>"
-    //output += "<b style='color: red'>Score relativo à situação de saúde (MP1/Sigma+1): </b>" + resultado_score_familiar_saude.toString() +"<br>"
-    //output += "<b style='color: red'>Score relativo à situação de saúde (MP1/MP2+1): </b>" + resultado_score_familiar_saude2.toString() +"<br><br>"
+    output += "<b style='color: red'>Score relativo à situação de saúde: </b>" + score_saude_view +"<br><br>"
 
     output += "<h3>Pontuação total: " + score_total.toString() +"</h3>"
 
