@@ -26,7 +26,7 @@ translator_tipo_renda = {
     tipo_vinculo_16: [4.4, "Autônomo"],
     tipo_vinculo_17: [2.64, "Poupança"],
     tipo_vinculo_18: [2.64, "Seguro-desemprego"],
-    tipo_vinculo_19: [0, "Sem renda"]
+    tipo_vinculo_19: [0.01, "Sem renda"]
 }
 
 
@@ -174,15 +174,15 @@ function get_renda_vector(renda_score, idade, ) {
     x = dependencia_by_age_group(idade);
 
     if ( renda_score == 22 ) {
-        y = 5
+        y = 6
     } else if ( renda_score == 14.08 ) {
-        y = 3.2
+        y = 3.84
     } else if ( renda_score == 9.68 ) {
-        y = 2.2
+        y = 2.64
     } else if ( renda_score == 4.4 ) {
-        y = 1
+        y = 1.2
     } else if ( renda_score == 2.64 ) {
-        y = 0.6
+        y = 0.72
     } else if ( renda_score == 0 ) {
         y = 0
     }
@@ -201,10 +201,10 @@ function get_saude_vector(saude_score, idade) {
         x = 0
 
     } else if ( saude_score == MID_SAUDE ) {
-        x = 1 
+        x = 3 
 
     } else if ( saude_score == MIN_SAUDE ) { 
-        x = 2 
+        x = 6 
     }
     return [x,y];
 };
@@ -242,15 +242,15 @@ function dependencia_by_age_group(idade) {
     if ( idade < 3 ) {
         return 3;
     } else if ( idade < 8 ) {
-        return 2;
+        return 2.5;
     } else if ( idade < 12 ) {
-        return 1;
+        return 2.3;
     } else if ( idade < 18 ) {
-        return 0.7;
+        return 2;
     } else if ( idade < 60 ) {
         return 0;
     } else {
-        return 0.5;
+        return 1;
     }
 };
 
@@ -411,8 +411,8 @@ function make_score(family_members) {
     };
 
     
-    global_saude_vector_x = calculate_dctx(family_members) + calculate_dgtx(family_members);
-    global_saude_vector_y = 0.5;
+    global_saude_vector_y = 0.0001;
+    global_saude_vector_x = (calculate_dctx(family_members) + calculate_dgtx(family_members)) //* (-1);
     global_saude_vector = [global_saude_vector_x, global_saude_vector_y]
     saude_vectors.push(global_saude_vector)
     vetor_resultante_saude = resultant_vector(saude_vectors);
@@ -421,7 +421,7 @@ function make_score(family_members) {
     resultado_score_familiar_saude = media_ponderada_score_saude / coseno_do_vetor_resultante_saude_mais_um
     score_saude_view = Math.floor(resultado_score_familiar_saude * 100).toString()
 
-    global_renda_vector_x = 0;
+    global_renda_vector_x = 0.0001;
     global_renda_vector_y = calculate_tx_com_renda(family_members);
     global_renda_vector = [global_renda_vector_x, global_renda_vector_y]
     renda_vectors.push(global_renda_vector)
