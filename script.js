@@ -218,7 +218,7 @@ function vector_size(vector) {
 };
 
 
-function coseno_vector(vector) {
+function cosseno_vector(vector) {
     return vector[0] / vector_size(vector);
 };
 
@@ -419,9 +419,9 @@ function make_score(family_members) {
     global_saude_vector = [global_saude_vector_x, global_saude_vector_y]
     saude_vectors.push(global_saude_vector)
     vetor_resultante_saude = resultant_vector(saude_vectors);
-    coseno_do_vetor_resultante_saude_mais_um = 1.0 + coseno_vector(vetor_resultante_saude);
+    cosseno_do_vetor_resultante_saude_mais_um = 1.0 + cosseno_vector(vetor_resultante_saude);
     media_ponderada_score_saude = media(pontuacao_conforme_a_situacao_de_saude)
-    resultado_score_familiar_saude = media_ponderada_score_saude / coseno_do_vetor_resultante_saude_mais_um
+    resultado_score_familiar_saude = media_ponderada_score_saude / cosseno_do_vetor_resultante_saude_mais_um
     score_saude_view = Math.floor(resultado_score_familiar_saude * 100)
 
     global_renda_vector_x = VETOR_ARBITRARIO;
@@ -429,9 +429,9 @@ function make_score(family_members) {
     global_renda_vector = [global_renda_vector_x, global_renda_vector_y]
     renda_vectors.push(global_renda_vector)
     vetor_resultante_renda = resultant_vector(renda_vectors);
-    coseno_do_vetor_resultante_renda_mais_um = 1.0 + coseno_vector(vetor_resultante_renda);
+    cosseno_do_vetor_resultante_renda_mais_um = 1.0 + cosseno_vector(vetor_resultante_renda);
     media_ponderada_natureza_renda = media(pontuacao_conforme_natureza_da_renda)
-    resultado_score_familiar_renda = media_ponderada_natureza_renda / coseno_do_vetor_resultante_renda_mais_um
+    resultado_score_familiar_renda = media_ponderada_natureza_renda / cosseno_do_vetor_resultante_renda_mais_um
     score_renda_view = Math.floor(resultado_score_familiar_renda * 100)
 
     score_total = score_renda_view + score_saude_view
@@ -442,7 +442,7 @@ function make_score(family_members) {
     output += "<b style='color: blue'>Vetores de renda: </b>" + vetores_renda_view.toString() + "<br>"
     output += "<b style='color: blue'>Vetor global de renda: </b>[" + global_renda_vector.toString() + "]<br>"
     output += "<b style='color: blue'>Media ponderada da natureza de renda: </b>" + media_ponderada_natureza_renda.toString() +"<br>"
-    output += "<b style='color: blue'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_renda_mais_um.toString() +"<br>"
+    output += "<b style='color: blue'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + cosseno_do_vetor_resultante_renda_mais_um.toString() +"<br>"
     output += "<b>Score relativo à natureza de renda: " + score_renda_view.toString() +"</b><br><br>"
 
 
@@ -450,7 +450,7 @@ function make_score(family_members) {
     output += "<b style='color: red'>Vetores de saúde: </b>" + vetores_saude_view.toString() +"<br>"
     output += "<b style='color: red'>Vetor global de saúde: </b>[" + global_saude_vector.toString() +"]<br>"
     output += "<b style='color: red'>Media ponderada da situação de saúde e cuidados: </b>" + media_ponderada_score_saude.toString() +"<br>"
-    output += "<b style='color: red'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + coseno_do_vetor_resultante_saude_mais_um.toString() +"<br>"
+    output += "<b style='color: red'>Cosseno do vetor resultante para peso dos cuidadores + 1: </b>" + cosseno_do_vetor_resultante_saude_mais_um.toString() +"<br>"
     output += "<b>Score relativo à situação de saúde: " + score_saude_view.toString() +"</b><br><br>"
 
     output += "<h3>Pontuação total: " + score_total.toString() +"</h3>"
