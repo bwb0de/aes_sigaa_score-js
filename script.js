@@ -6,7 +6,7 @@ MIN_SAUDE = 3
 
 MAX_RENDA = 22
 
-VETOR_ARBITRARIO = 0.0001
+VETOR_ARBITRARIO = 0.5
 
 
 translator_tipo_renda = {
@@ -204,10 +204,10 @@ function get_saude_vector(saude_score, idade) {
         x = 0
 
     } else if ( saude_score == MID_SAUDE ) {
-        x = 3 
+        x = 1.5 //3 
 
     } else if ( saude_score == MIN_SAUDE ) { 
-        x = 6 
+        x = 3 //6 
     }
     return [x,y];
 };
