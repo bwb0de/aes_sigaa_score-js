@@ -29,7 +29,7 @@ translator_tipo_renda = {
     tipo_vinculo_16: [4.4, "Autônomo"],
     tipo_vinculo_17: [2.64, "Poupança"],
     tipo_vinculo_18: [2.64, "Seguro-desemprego"],
-    tipo_vinculo_19: [0.01, "Sem renda"]
+    tipo_vinculo_19: [0, "Sem renda"]
 }
 
 
@@ -200,15 +200,24 @@ function get_saude_vector(saude_score, idade) {
 
     y = autonomia_by_age_group(idade);
     
+
+
     if ( saude_score == MAX_SAUDE ){
         x = 0
 
     } else if ( saude_score == MID_SAUDE ) {
-        x = 1.5 //3 
+        x = 1.5 
 
     } else if ( saude_score == MIN_SAUDE ) { 
-        x = 3 //6 
+        x = 3 
+    
+    } else if ( saude_score == 2 ) { 
+        x = 4 
+    
+    } else if ( saude_score == 1 ) { 
+        x = 5 
     }
+    
     return [x,y];
 };
 
@@ -322,9 +331,40 @@ function get_selected_op(class_name, translator, output_score=false) {
         };
     };
 
-    if ( selected_ops.length > 1 ) {
-        alert("Mais de uma opção selecionada");
-        alert(selected_ops);
+    if ( selected_ops.length > 1 && class_name == 'saude' ) {
+        switch_val = 0
+        for ( index in selected_ops) {
+            if ( selected_ops[index] == 'saude_01' ) {
+                switch_val += 100
+            } else if ( selected_ops[index] == 'saude_02' ) {
+                switch_val += 10
+            } else if ( selected_ops[index] == 'saude_03' ) {
+                switch_val += 1
+            } else {
+                switch_val += 1000
+            }
+            output += translator[selected_ops[index]][1] + '; ';
+        };
+
+
+        //Verificação de valores cruzados
+        if ( switch_val == 1000 ) {
+            scores.push(13)
+        } else if ( switch_val == 100 ) {
+            scores.push(8)
+        } else if ( switch_val == 10 ) {
+            scores.push(3)
+        } else if ( switch_val == 1 ) {
+            scores.push(3)
+        } else if ( switch_val == 11 ) {
+            scores.push(1)
+        } else if ( switch_val == 110 ) {
+            scores.push(1)
+        } else if ( switch_val == 101 ) {
+            scores.push(2)
+        } 
+        
+
     } else {
         for ( index in selected_ops) {
             output += translator[selected_ops[index]][1] + '; ';
